@@ -1,26 +1,28 @@
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.example.OrderApi;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class OrdersListTests {
 
+    private static OrderApi orderApi;
+
     @BeforeClass
     public static void setup() {
+        orderApi = new OrderApi();
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
-
     }
 
     @Test
-    @Step
     public void testGetAllOrders() {
-        Response response = get("/api/v1/orders");
+        Response response = orderApi.getAllOrders();
         response.then()
                 .statusCode(200)
                 .body("orders", notNullValue())

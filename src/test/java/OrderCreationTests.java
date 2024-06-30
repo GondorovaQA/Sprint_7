@@ -16,20 +16,21 @@ import static org.hamcrest.Matchers.equalTo;
 @RunWith(Parameterized.class)
 public class OrderCreationTests {
 
-    private final String color;
+    private final String[] colors;
     private final boolean expectTrackInResponse;
 
     @Parameters(name = "{index}: Create order with colors ({0}) -> Track in response: {1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {"BLACK", true},
-                {"GREY", true},
-                {null, false} // Нет цвета
+                {new String[]{"BLACK"}, true},
+                {new String[]{"GREY"}, true},
+                {new String[]{"BLACK", "GREY"}, true},
+                {new String[]{}, false}
         });
     }
 
-    public OrderCreationTests(String color, boolean expectTrackInResponse) {
-        this.color = color;
+    public OrderCreationTests(String[] colors, boolean expectTrackInResponse) {
+        this.colors = colors;
         this.expectTrackInResponse = expectTrackInResponse;
     }
 
@@ -41,13 +42,15 @@ public class OrderCreationTests {
     @Test
     @Step
     public void testCreateOrderWithColor() {
+        String colorsJson = String.join(",", colors);
         given()
                 .contentType(ContentType.JSON)
-                .body("{\"color\": \"" + color + "\"}")
+                .body("{\"color\": \"" + colorsJson + "\"}")
                 .when()
                 .post("/api/v1/order")
                 .then()
-                .statusCode(404)
+                .statusCode(201 )
                 .body("track", equalTo(null));
     }
 }
+
