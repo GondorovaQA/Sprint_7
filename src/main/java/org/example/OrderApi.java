@@ -25,7 +25,4 @@ public class OrderApi {
                 .then()
                 .extract().response();
     }
-
-
 }
-

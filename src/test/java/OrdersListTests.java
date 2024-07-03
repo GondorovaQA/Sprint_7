@@ -9,7 +9,6 @@ import org.junit.Test;
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-
 public class OrdersListTests {
 
     private static OrderApi orderApi;
