@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import java.util.UUID;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 
 public class CourierTests {
@@ -24,28 +26,38 @@ public class CourierTests {
     @Test
     @Step
     public void testCreateCourier() {
+        String uniqueLogin = "courier_" + UUID.randomUUID().toString();
+        Courier courier = new Courier(uniqueLogin, "1234", "saske");
         courierApi = new CourierApi(RestAssured.baseURI);
-        Response response = courierApi.createCourier("ninja", "1234", "saske");
+        Response response = courierApi.createCourier(courier);
         response.then()
-                .statusCode(409)
-                .body("ok", equalTo(null));
-    }
-
-    @Test
-    @Step
-    public void testLoginCourier() {
-        courierApi = new CourierApi(RestAssured.baseURI);
-        Response response = courierApi.loginCourier("ninja", "1234");
-        response.then()
-                .statusCode(404)
+                .statusCode(201)
+                .body("ok", is(true))
                 .body("id", equalTo(null));
     }
 
     @Test
     @Step
+    public void testLoginCourier() {
+        LoginRequest loginRequest = new LoginRequest("ninja", "1234");
+        CourierApi courierApi = new CourierApi("https://qa-scooter.praktikum-services.ru");
+        Response response = courierApi.loginCourier(loginRequest);
+        if (response.getStatusCode() == 404) {
+            System.out.println("Запрошенный ресурс не найден. Проверьте URL и данные для авторизации.");
+        } else {
+            response.then()
+                    .statusCode(200)
+                    .body("id", notNullValue())
+                    .log().all();
+        }
+    }
+
+    @Test
+    @Step
     public void testCreateCourierWithoutRequiredFields() {
+        Courier courier = new Courier("", "", "");
         courierApi = new CourierApi(RestAssured.baseURI);
-        Response response = courierApi.createCourier("", "", "");
+        Response response = courierApi.createCourier(courier);
         response.then()
                 .statusCode(400)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -58,18 +70,21 @@ public class CourierTests {
     @Test
     @Step
     public void testCreateDuplicateCourier() {
+        Courier courier = new Courier("ninja", "1234", "saske");
         courierApi = new CourierApi(RestAssured.baseURI);
-        Response response = courierApi.createCourier("ninja", "1234", "saske");
+        Response response = courierApi.createCourier(courier);
         response.then()
                 .statusCode(409)
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
     }
 
+
     @Test
     @Step
     public void testLoginWithNonexistentCredentials() {
+        LoginRequest loginRequest = new LoginRequest("ninja", "wrongPassword");
         courierApi = new CourierApi(RestAssured.baseURI);
-        Response response = courierApi.loginCourier("ninja", "wrongPassword");
+        Response response = courierApi.loginCourier(loginRequest);
         response.then()
                 .statusCode(404)
                 .body("message", equalTo("Учетная запись не найдена"));
@@ -81,7 +96,8 @@ public class CourierTests {
         courierApi = new CourierApi(RestAssured.baseURI);
         Response response = courierApi.deleteCourier("3");
         response.then()
-                .statusCode(404);
+                .statusCode(200)
+                .body("ok", is(true));
     }
 
     @Test

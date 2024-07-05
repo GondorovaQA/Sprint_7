@@ -1,13 +1,12 @@
 package org.example;
-public class Courier {
+
+public class LoginRequest {
     private String login;
     private String password;
-    private String firstName;
 
-    public Courier(String login, String password, String firstName) {
+    public LoginRequest(String login, String password) {
         this.login = login;
         this.password = password;
-        this.firstName = firstName;
     }
 
     // Геттеры и сеттеры
@@ -25,13 +24,5 @@ public class Courier {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 }
